@@ -1,5 +1,6 @@
 <template>
-  <div class="home">Adcash Challenge</div>
+  <div class="home">
+    Adcash Challenge
 </template>
 
 <script>
