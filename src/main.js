@@ -1,10 +1,21 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
 
-Vue.config.productionTip = false
+import Vuetify from "vuetify";
+import "vuetify/dist/vuetify.min.css";
+// import "material-design-icons-iconfont/dist/material-design-icons.css";
+import "@mdi/font/css/materialdesignicons.css";
+
+Vue.use(Vuetify);
+
+const opts = {};
+const VuetifyInstance = new Vuetify(opts);
+
+Vue.config.productionTip = false;
 
 new Vue({
   router,
-  render: h => h(App)
-}).$mount('#app')
+  vuetify: VuetifyInstance,
+  render: (h) => h(App),
+}).$mount("#app");
