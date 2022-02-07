@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <section class="section-container">
     <h1>Ad Targeting</h1>
     <div class="form-container">
       <form>
@@ -26,13 +26,6 @@
               flat
               solo
             >
-              <template v-slot:no-data>
-                <v-list-item>
-                  <v-chip color="blue lighten-3`" label small>
-                    {{ search }}
-                  </v-chip>
-                </v-list-item>
-              </template>
               <template v-slot:selection="{ attrs, item, parent, selected }">
                 <v-chip
                   v-if="item === Object(item)"
@@ -59,7 +52,7 @@
         </div>
       </form>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>
