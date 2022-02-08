@@ -8,12 +8,12 @@ import "@mdi/font/css/materialdesignicons.css";
 Vue.use(Vuetify);
 
 const opts = {};
-const VuetifyInstance = new Vuetify(opts);
+const vuetify = new Vuetify(opts);
 
 Vue.config.productionTip = false;
 
 new Vue({
   router,
-  vuetify: VuetifyInstance,
+  vuetify,
   render: (h) => h(App),
 }).$mount("#app");

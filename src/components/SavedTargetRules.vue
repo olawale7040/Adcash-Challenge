@@ -7,7 +7,7 @@
         <div class="column-two">Rules</div>
         <div class="column-three">Action</div>
       </div>
-      <div class="table-row">
+      <div class="table-row" v-for="i in 4" :key="i">
         <div class="column-one">Country</div>
         <div class="column-two saved-rules-list">
           <ChipButton text="Estonia" />
@@ -15,25 +15,38 @@
           <ChipButton text="Entertainment" />
         </div>
         <div class="column-three">
-          <img src="../assets/img/delete.svg" alt="" />
+          <img
+            @click="isDeleteDialog = true"
+            src="../assets/img/delete.svg"
+            alt=""
+          />
         </div>
       </div>
     </div>
+    <DeleteDialog v-if="isDeleteDialog" v-bind="{ closeDialog }" />
   </section>
 </template>
 
 <script>
 import ChipButton from "./ChipButton.vue";
+import DeleteDialog from "./DeleteDialog.vue";
 export default {
   props: {},
   components: {
     ChipButton,
+    DeleteDialog,
   },
 
-  data: () => ({}),
+  data: () => ({
+    isDeleteDialog: false,
+  }),
 
   created() {},
-  methods: {},
+  methods: {
+    closeDialog() {
+      this.isDeleteDialog = false;
+    },
+  },
   computed: {},
 };
 </script>
