@@ -9,7 +9,11 @@
       </div>
       <div class="table-row">
         <div class="column-one">Country</div>
-        <div class="column-two">Rules</div>
+        <div class="column-two saved-rules-list">
+          <ChipButton text="Estonia" />
+          <ChipButton text="Mobile" />
+          <ChipButton text="Entertainment" />
+        </div>
         <div class="column-three">
           <img src="../assets/img/delete.svg" alt="" />
         </div>
@@ -19,9 +23,12 @@
 </template>
 
 <script>
+import ChipButton from "./ChipButton.vue";
 export default {
   props: {},
-  components: {},
+  components: {
+    ChipButton,
+  },
 
   data: () => ({}),
 
@@ -58,5 +65,10 @@ export default {
 .table-row {
   font-weight: initial;
   border-top: none;
+}
+.saved-rules-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 </style>

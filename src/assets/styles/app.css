@@ -52,42 +52,7 @@ header {
   background: #f4f4f4;
   margin-bottom: 32px;
 }
-/* Search textbox*/
 
-.search-box input {
-  width: 100%;
-  padding: 6px 10px;
-  margin: 32px 0px 10px 0px;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-  display: block;
-  outline: 2px solid transparent;
-  border-radius: 4px;
-  border-color: eee;
-  background: inherit;
-  height: 40px;
-}
-
-/* card item */
-.card-item {
-  padding: 10px 16px;
-  margin: 20px 0;
-  border-bottom: 1px solid #fafafa;
-  text-align: left;
-  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
-}
-.card-item:hover {
-  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
-}
-.card-item h2 {
-  font-size: 20px;
-  color: #f1356d;
-  margin-bottom: 8px;
-}
-.empty-item {
-  margin-top: 25px;
-}
-/* Modeler styles */
 .container {
   height: calc(100vh - 200px);
 }
