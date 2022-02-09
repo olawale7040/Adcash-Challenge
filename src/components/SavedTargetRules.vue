@@ -7,16 +7,26 @@
         <div class="column-two">Rules</div>
         <div class="column-three">Action</div>
       </div>
-      <div class="table-row" v-for="i in 4" :key="i">
-        <div class="column-one">Country</div>
+      <div
+        class="table-row"
+        v-for="rule in savedTargetRules"
+        :key="rule.id"
+        v-if="rule.targeting_type_id < 4"
+      >
+        <div class="column-one">
+          {{ findTargetType(rule.targeting_type_id) }}
+        </div>
         <div class="column-two saved-rules-list">
-          <ChipButton text="Estonia" />
-          <ChipButton text="Mobile" />
-          <ChipButton text="Entertainment" />
+          <ChipButton
+            v-for="item in rule.rules"
+            :key="item"
+            v-on:click="handleDeleteRule"
+            :text="computeRules(item)"
+          />
         </div>
         <div class="column-three">
           <img
-            @click="isDeleteDialog = true"
+            @click="handleDeleteRule"
             src="../assets/img/delete.svg"
             alt=""
           />
@@ -31,7 +41,20 @@
 import ChipButton from "./ChipButton.vue";
 import DeleteDialog from "./DeleteDialog.vue";
 export default {
-  props: {},
+  props: {
+    savedTargetRules: {
+      type: Array,
+      required: true,
+    },
+    findTargetType: {
+      type: Function,
+      required: true,
+    },
+    computeRules: {
+      type: Function,
+      required: true,
+    },
+  },
   components: {
     ChipButton,
     DeleteDialog,
@@ -41,10 +64,15 @@ export default {
     isDeleteDialog: false,
   }),
 
-  created() {},
+  created() {
+    console.log(this.savedTargetRules, "saved....");
+  },
   methods: {
     closeDialog() {
       this.isDeleteDialog = false;
+    },
+    handleDeleteRule() {
+      this.isDeleteDialog = true;
     },
   },
   computed: {},
@@ -64,10 +92,10 @@ export default {
 }
 .column-three,
 .column-one {
-  width: 15%;
+  width: 18%;
 }
 .column-two {
-  width: 70%;
+  width: 64%;
 }
 .column-three {
   text-align: right;

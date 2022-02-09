@@ -6,8 +6,19 @@
         <div class="form-row">
           <div class="target-type-form">
             <div class="form-label">Type</div>
-            <select class="form-control" name="target_type">
-              <option value="Germany">Germany</option>
+            <select
+              v-model="form.targeting_type_id"
+              class="form-control"
+              name="target_type"
+            >
+              <option
+                v-for="target in targetingTypes"
+                :key="target.id"
+                :value="target.id"
+                v-if="target.id < 4"
+              >
+                {{ target.name }}
+              </option>
             </select>
           </div>
           <div class="target-rule-form">
@@ -17,10 +28,12 @@
               v-model="model"
               :filter="filter"
               :hide-no-data="!search"
-              :items="items"
+              :items="selectionOptions"
               :search-input.sync="search"
               hide-selected
               label="Search for an option"
+              item-value="selectionOptions.name"
+              item-text="name"
               multiple
               small-chips
               flat
@@ -30,13 +43,13 @@
                 <v-chip
                   v-if="item === Object(item)"
                   v-bind="attrs"
-                  :color="`${item.color} lighten-3`"
+                  :color="`${item.name} lighten-3`"
                   :input-value="selected"
                   label
                   small
                 >
                   <span class="pr-2">
-                    {{ item.text }}
+                    {{ item.name }}
                   </span>
                   <v-icon small @click="parent.selectItem(item)">
                     $delete
@@ -58,23 +71,23 @@
 <script>
 export default {
   name: "AddTarget",
+  props: {
+    targetingTypes: {
+      type: Array,
+      required: true,
+    },
+    selectionOptions: {
+      type: Array,
+      required: true,
+    },
+    form: {
+      type: Object,
+      required: true,
+    },
+  },
   components: {},
   data: () => ({
-    editing: null,
-    items: [
-      {
-        text: "Foo",
-      },
-      {
-        text: "Bar",
-      },
-    ],
-    model: [
-      {
-        text: "Foo",
-        color: "blue",
-      },
-    ],
+    model: [],
     x: 0,
     search: null,
     y: 0,
@@ -92,6 +105,16 @@ export default {
         text.toString().toLowerCase().indexOf(query.toString().toLowerCase()) >
         -1
       );
+    },
+  },
+  watch: {
+    "form.targeting_type_id": {
+      immediate: false,
+      handler: function (newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.model = [];
+        }
+      },
     },
   },
 };
@@ -138,14 +161,6 @@ export default {
   gap: 24px;
 }
 
-.btn {
-  border-radius: 3px;
-  padding: 16px 20px;
-  font-size: 14px;
-  line-height: 100%;
-  border: none;
-  cursor: pointer;
-}
 .reset-btn {
   background: #ffffff;
   font-style: normal;

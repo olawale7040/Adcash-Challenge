@@ -56,3 +56,12 @@ header {
 .container {
   height: calc(100vh - 200px);
 }
+
+.btn {
+  border-radius: 3px;
+  padding: 16px 20px;
+  font-size: 14px;
+  line-height: 100%;
+  border: none;
+  cursor: pointer;
+}

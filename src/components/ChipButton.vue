@@ -3,7 +3,7 @@
     <div class="chip-text">
       {{ text }}
     </div>
-    <div class="cancel-icon">
+    <div class="cancel-icon" @click="$emit('click')">
       <img src="../assets/img/close.svg" alt="" />
     </div>
   </div>

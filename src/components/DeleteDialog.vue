@@ -11,7 +11,16 @@
         <div class="delete-item-msg">You are about to delete a</div>
         <div class="delete-item-prompt">Do you wish to continue?</div>
       </div>
-      <div class="dialog-footer"></div>
+      <div class="dialog-footer">
+        <button
+          class="btn grey-btn"
+          @click="closeDialog"
+          style="margin-right: 24px"
+        >
+          No, Go back
+        </button>
+        <button class="btn red-btn">Yes, Proceed</button>
+      </div>
     </div>
   </div>
 </template>
@@ -94,6 +103,18 @@ export default {
   color: #6f7680;
   margin-top: 24px;
   text-align: left;
+}
+.grey-btn {
+  background: #ffffff;
+  font-style: normal;
+  font-weight: 500;
+  color: #979da5;
+}
+.red-btn {
+  font-style: normal;
+  font-weight: 500;
+  color: #fdfdfd !important;
+  background: #d45b54 !important;
 }
 </style>
 
