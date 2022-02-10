@@ -2,15 +2,21 @@
   <section class="section-container">
     <h1>Ad Targeting</h1>
     <div class="form-container">
-      <form>
+      <form @submit="submitTargetingRule">
         <div class="form-row">
           <div class="target-type-form">
-            <div class="form-label">Type</div>
+            <div class="form-label rules-label">
+              <div>Type</div>
+              <div class="error-msg" v-if="form_error.targeting_type_id">
+                {{ form_error.targeting_type_id[0] }}
+              </div>
+            </div>
             <select
               v-model="form.targeting_type_id"
               class="form-control"
               name="target_type"
             >
+              <option value="">-select option-</option>
               <option
                 v-for="target in targetingTypes"
                 :key="target.id"
@@ -22,17 +28,22 @@
             </select>
           </div>
           <div class="target-rule-form">
-            <div class="form-label">Rules</div>
+            <div class="form-label rules-label">
+              <div>Rules</div>
+              <div class="error-msg" v-if="form_error.rules">
+                {{ form_error.rules[0] }}
+              </div>
+            </div>
             <v-combobox
               class="vuetify-combo"
-              v-model="model"
+              v-model="form.rules"
               :filter="filter"
               :hide-no-data="!search"
-              :items="selectionOptions"
+              :items="availableOptions"
               :search-input.sync="search"
               hide-selected
               label="Search for an option"
-              item-value="selectionOptions.name"
+              item-value="availableOptions.name"
               item-text="name"
               multiple
               small-chips
@@ -60,8 +71,18 @@
           </div>
         </div>
         <div class="form-row btn-wrapper">
-          <button class="btn reset-btn">Reset</button>
-          <button class="btn add-btn">Add rule</button>
+          <button @click="handleResetForm" type="reset" class="btn reset-btn">
+            Reset
+          </button>
+          <button type="submit" class="btn add-btn">
+            Add rule
+            <img
+              src="../assets/img/preloader.gif"
+              style="margin-left: 20px"
+              class="button-spinner"
+              v-show="spinner"
+            />
+          </button>
         </div>
       </form>
     </div>
@@ -76,7 +97,7 @@ export default {
       type: Array,
       required: true,
     },
-    selectionOptions: {
+    availableOptions: {
       type: Array,
       required: true,
     },
@@ -84,10 +105,25 @@ export default {
       type: Object,
       required: true,
     },
+    form_error: {
+      type: Object,
+      required: true,
+    },
+    submitTargetingRule: {
+      type: Function,
+      required: true,
+    },
+    spinner: {
+      type: Boolean,
+      required: true,
+    },
+    handleResetForm: {
+      type: Function,
+      required: true,
+    },
   },
   components: {},
   data: () => ({
-    model: [],
     x: 0,
     search: null,
     y: 0,
@@ -112,7 +148,7 @@ export default {
       immediate: false,
       handler: function (newValue, oldValue) {
         if (newValue !== oldValue) {
-          this.model = [];
+          this.form.rules = [];
         }
       },
     },
@@ -173,10 +209,20 @@ export default {
   font-style: normal;
   font-weight: 500;
 }
+.rules-label {
+  display: flex;
+  justify-content: space-between;
+}
+.error-msg {
+  color: red;
+  float: right;
+  font-size: 12px;
+  margin-right: 15px;
+}
 </style>
 <style>
 .vuetify-combo.v-text-field > .v-input__control > .v-input__slot:before {
-  border: 0px;
+  border: 0psg;
 }
 .vuetify-combo .v-input__slot {
   border: solid 1px #ced4da;

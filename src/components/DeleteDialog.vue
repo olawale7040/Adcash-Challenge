@@ -8,7 +8,9 @@
         </div>
       </div>
       <div class="dialog-content">
-        <div class="delete-item-msg">You are about to delete a</div>
+        <div class="delete-item-msg">
+          You are about to delete targeting rule
+        </div>
         <div class="delete-item-prompt">Do you wish to continue?</div>
       </div>
       <div class="dialog-footer">
@@ -19,7 +21,15 @@
         >
           No, Go back
         </button>
-        <button class="btn red-btn">Yes, Proceed</button>
+        <button @click="handleDeleteTarget" class="btn red-btn">
+          Yes, Proceed
+          <img
+            src="../assets/img/preloader.gif"
+            style="margin-left: 20px"
+            class="button-spinner"
+            v-show="spinner"
+          />
+        </button>
       </div>
     </div>
   </div>
@@ -30,6 +40,14 @@ export default {
   props: {
     closeDialog: {
       type: Function,
+      required: true,
+    },
+    handleDeleteTarget: {
+      type: Function,
+      required: true,
+    },
+    spinner: {
+      type: Boolean,
       required: true,
     },
   },

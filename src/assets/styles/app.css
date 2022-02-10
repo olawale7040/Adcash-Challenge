@@ -65,3 +65,31 @@ header {
   border: none;
   cursor: pointer;
 }
+.loading-container {
+  margin-top: 32px;
+}
+/*  Alert*/
+.message-wrapper {
+  position: fixed;
+  top: 6%;
+  right: 3%;
+  z-index: 10000;
+  box-sizing: border-box;
+  border-radius: 4px;
+  padding: 24px;
+}
+.success {
+  background: #1fa564;
+}
+.error {
+  background: #a5271f;
+}
+.msg-content {
+  display: flex;
+  min-width: 250px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 130%;
+  color: #ffffff;
+  padding-top: 2px;
+}

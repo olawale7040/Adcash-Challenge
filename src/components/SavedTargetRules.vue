@@ -20,24 +20,31 @@
           <ChipButton
             v-for="item in rule.rules"
             :key="item"
-            v-on:click="handleDeleteRule"
+            v-on:click="handleDeleteModal(rule.targeting_type_id, item)"
             :text="computeRules(item)"
           />
         </div>
         <div class="column-three">
           <img
-            @click="handleDeleteRule"
+            @click="handleDeleteModal(rule.targeting_type_id, rule.rules)"
             src="../assets/img/delete.svg"
             alt=""
           />
         </div>
       </div>
+      <div class="loading-container" v-if="savedTargetRules.length < 1">
+        Loading....
+      </div>
     </div>
-    <DeleteDialog v-if="isDeleteDialog" v-bind="{ closeDialog }" />
+    <DeleteDialog
+      v-if="isDeleteDialog"
+      v-bind="{ closeDialog, handleDeleteTarget, spinner }"
+    />
   </section>
 </template>
 
 <script>
+import { deleteTargetingRules } from "@/Api";
 import ChipButton from "./ChipButton.vue";
 import DeleteDialog from "./DeleteDialog.vue";
 export default {
@@ -62,17 +69,42 @@ export default {
 
   data: () => ({
     isDeleteDialog: false,
+    deleteItem: {
+      targeting_type_id: "",
+      rules: [],
+    },
+    spinner: false,
   }),
 
-  created() {
-    console.log(this.savedTargetRules, "saved....");
-  },
+  created() {},
   methods: {
     closeDialog() {
       this.isDeleteDialog = false;
     },
-    handleDeleteRule() {
+    handleDeleteModal(targeting_type_id, items) {
       this.isDeleteDialog = true;
+      let rules = [];
+      if (Array.isArray(items)) {
+        rules = items;
+      } else {
+        rules.push(items);
+      }
+      this.deleteItem = { targeting_type_id, rules };
+    },
+    handleDeleteTarget() {
+      this.spinner = true;
+      const payload = this.deleteItem;
+      deleteTargetingRules(payload)
+        .then((response) => {
+          if (response.status === 200) {
+            console.log(response, "success");
+            this.isDeleteDialog = false;
+          }
+        })
+        .catch((error) => {})
+        .finally(() => {
+          this.spinner = false;
+        });
     },
   },
   computed: {},

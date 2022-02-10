@@ -2,7 +2,23 @@
   <div>
     <Header />
     <main class="content">
-      <AddTarget v-bind="{ form, selectionOptions, targetingTypes }" />
+      <div v-if="successText" class="success message-wrapper">
+        <div class="msg-content">{{ successText }}</div>
+      </div>
+      <div v-if="errorText" class="error message-wrapper">
+        <div class="msg-content">{{ errorText }}</div>
+      </div>
+      <AddTarget
+        v-bind="{
+          form,
+          availableOptions,
+          targetingTypes,
+          submitTargetingRule,
+          form_error,
+          spinner,
+          handleResetForm,
+        }"
+      />
       <SavedTargetRules
         v-bind="{ savedTargetRules, findTargetType, computeRules }"
       />
@@ -20,6 +36,7 @@ import {
   getCountryTypes,
   getDeviceTypes,
   getSavedTargetingRules,
+  addNewRules,
 } from "@/Api";
 export default {
   name: "Home",
@@ -33,10 +50,20 @@ export default {
     categoryTypes: [],
     countryTypes: [],
     deviceTypes: [],
-    savedTargetRules: [],
+    currentRules: [],
     form: {
-      targeting_type_id: 1,
+      targeting_type_id: "",
+      rules: [],
     },
+    form_error: {
+      rules: [],
+      targeting_type_id: [],
+    },
+    spinner: false,
+    successMessage: false,
+    successText: "",
+    errorMessage: false,
+    errorText: "",
   }),
 
   mounted() {
@@ -53,9 +80,7 @@ export default {
         },
       })
         .then((response) => response.json())
-        .then((response) => {
-          console.log(response, "fetch");
-        })
+        .then((response) => {})
         .catch((err) => {
           console.log(err);
         });
@@ -75,7 +100,7 @@ export default {
             this.categoryTypes = eval(resp[1].data);
             this.countryTypes = eval(resp[2].data);
             this.deviceTypes = eval(resp[3].data);
-            this.savedTargetRules = this.reduceSavedRules(eval(resp[4].data));
+            this.currentRules = eval(resp[4].data);
           } else {
             //  error handling for
           }
@@ -87,20 +112,6 @@ export default {
     },
     findTargetType(id) {
       return this.targetingTypes.find((type) => type.id === id).name;
-    },
-
-    reduceSavedRules(arr) {
-      return arr.reduce((acc, val, ind) => {
-        const index = acc.findIndex(
-          (el) => el.targeting_type_id === val.targeting_type_id
-        );
-        if (index !== -1) {
-          acc[index]["rules"].push(val.rule);
-        } else {
-          acc.push({ ...val, rules: [`${val.rule}`] });
-        }
-        return acc;
-      }, []);
     },
     computeRules(ruleId) {
       let allTypes = [
@@ -114,20 +125,114 @@ export default {
       }
       return "";
     },
+    submitTargetingRule(event) {
+      event.preventDefault();
+      this.form_error = {
+        rules: [],
+        targeting_type_id: [],
+      };
+      if (!this.form.targeting_type_id) {
+        this.form_error.targeting_type_id[0] = "Please select option";
+      } else if (this.form.rules.length < 1) {
+        this.form_error.rules[0] = "Please select rule";
+      } else {
+        this.spinner = true;
+        const { rules, targeting_type_id } = this.form;
+        let rulesSelected = rules.map((item) => item.id.toString());
+        let payload = { targeting_type_id, rules: rulesSelected };
+        addNewRules(payload)
+          .then((response) => {
+            console.log(response);
+            this.successText = "Rule saved successfully";
+            let newRules = this.generateNewAddedRules(payload);
+            this.currentRules = [...this.currentRules, ...newRules];
+            this.handleResetForm();
+          })
+          .catch((error) => {
+            this.errorText = "An error occurred while saving";
+          })
+          .finally(() => {
+            this.spinner = false;
+          });
+      }
+    },
+    handleResetForm() {
+      this.form = { rules: [], targeting_type_id: "" };
+    },
+    uniqueTargetingRule(arr1, arr2) {
+      return arr1.reduce((acc, val) => {
+        const findItem = arr2.findIndex((el) => el.rule == val.id);
+        if (findItem === -1) {
+          acc.push(val);
+        }
+        return acc;
+      }, []);
+    },
+    generateNewAddedRules(payload) {
+      const { targeting_type_id, rules } = payload;
+      return rules.map((item) => {
+        return { id: item, targeting_type_id, rule: item };
+      });
+    },
   },
   computed: {
-    selectionOptions() {
+    availableOptions() {
       const { targeting_type_id } = this.form;
+      const existingRules = this.savedTargetRules;
+      console.log(existingRules, "hey update");
+      let rules;
       switch (targeting_type_id) {
         case 1:
-          return this.categoryTypes;
+          rules = this.categoryTypes;
+          return this.uniqueTargetingRule(rules, existingRules);
         case 2:
-          return this.countryTypes;
+          rules = this.countryTypes;
+          return this.uniqueTargetingRule(rules, existingRules);
         case 3:
-          return this.deviceTypes;
+          rules = this.deviceTypes;
+          return this.uniqueTargetingRule(rules, existingRules);
         default:
           return [];
       }
+    },
+    savedTargetRules() {
+      const arr = this.currentRules;
+      if (arr.length > 0) {
+        return arr.reduce((acc, val) => {
+          const index = acc.findIndex(
+            (el) => el.targeting_type_id === val.targeting_type_id
+          );
+          if (index !== -1) {
+            acc[index]["rules"].push(val.rule);
+          } else {
+            acc.push({ ...val, rules: [`${val.rule}`] });
+          }
+          return acc;
+        }, []);
+      }
+      return [];
+    },
+  },
+  watch: {
+    errorText: {
+      handler: function (val) {
+        if (val) {
+          setTimeout(() => {
+            val = false;
+            this.errorText = "";
+          }, 4000);
+        }
+      },
+    },
+    successText: {
+      handler: function (val) {
+        if (val) {
+          setTimeout(() => {
+            val = false;
+            this.successText = "";
+          }, 4000);
+        }
+      },
     },
   },
 };
