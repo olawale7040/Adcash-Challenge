@@ -1,7 +1,7 @@
 <template>
   <header>
     <nav class="navbar">
-      <div>HOME</div>
+      <div class="brand-name">AdCash Coding Challenge</div>
       <div class="links"></div>
     </nav>
   </header>

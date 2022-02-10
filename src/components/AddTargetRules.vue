@@ -2,7 +2,7 @@
   <section class="section-container">
     <h1>Ad Targeting</h1>
     <div class="form-container">
-      <form @submit="submitTargetingRule">
+      <form @submit.prevent="submitTargetingRule" data-testId="add-target-form">
         <div class="form-row">
           <div class="target-type-form">
             <div class="form-label rules-label">
@@ -15,6 +15,7 @@
               v-model="form.targeting_type_id"
               class="form-control"
               name="target_type"
+              data-testId="targeting-type"
             >
               <option value="">-select option-</option>
               <option
@@ -35,15 +36,15 @@
               </div>
             </div>
             <v-combobox
+              data-testId="targeting-rules"
               class="vuetify-combo"
               v-model="form.rules"
-              :filter="filter"
-              :hide-no-data="!search"
               :items="availableOptions"
               :search-input.sync="search"
               hide-selected
               label="Search for an option"
               item-value="availableOptions.name"
+              no-data-text="No data"
               item-text="name"
               multiple
               small-chips
@@ -71,10 +72,15 @@
           </div>
         </div>
         <div class="form-row btn-wrapper">
-          <button @click="handleResetForm" type="reset" class="btn reset-btn">
+          <button
+            @click="handleResetForm"
+            type="reset"
+            class="btn reset-btn"
+            data-testId="reset-button"
+          >
             Reset
           </button>
-          <button type="submit" class="btn add-btn">
+          <button type="submit" class="btn add-btn" data-testId="submit-button">
             Add rule
             <img
               src="../assets/img/preloader.gif"
@@ -128,21 +134,7 @@ export default {
     search: null,
     y: 0,
   }),
-  methods: {
-    filter(item, queryText, itemText) {
-      if (item.header) return false;
-
-      const hasValue = (val) => (val != null ? val : "");
-
-      const text = hasValue(itemText);
-      const query = hasValue(queryText);
-
-      return (
-        text.toString().toLowerCase().indexOf(query.toString().toLowerCase()) >
-        -1
-      );
-    },
-  },
+  methods: {},
   watch: {
     "form.targeting_type_id": {
       immediate: false,

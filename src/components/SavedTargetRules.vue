@@ -21,7 +21,7 @@
             v-for="item in rule.rules"
             :key="item"
             v-on:click="handleDeleteModal(rule.targeting_type_id, item)"
-            :text="computeRules(item)"
+            :text="getRuleName(item)"
           />
         </div>
         <div class="column-three">
@@ -32,14 +32,22 @@
           />
         </div>
       </div>
-      <div class="loading-container" v-if="savedTargetRules.length < 1">
+      <div
+        class="loading-container"
+        v-if="savedTargetRules.length < 1 && errorHandling == ''"
+      >
         Loading....
+      </div>
+      <div class="" v-if="errorHandling">
+        {{ errorHandling }}
       </div>
     </div>
     <DeleteDialog
       v-if="isDeleteDialog"
       v-bind="{ closeDialog, handleDeleteTarget, spinner }"
     />
+    <SuccessMessage v-bind="{ message }" />
+    <ErrorMessage v-bind="{ message }" />
   </section>
 </template>
 
@@ -47,6 +55,8 @@
 import { deleteTargetingRules } from "@/Api";
 import ChipButton from "./ChipButton.vue";
 import DeleteDialog from "./DeleteDialog.vue";
+import SuccessMessage from "./SuccessMessage.vue";
+import ErrorMessage from "./ErrorMessage.vue";
 export default {
   props: {
     savedTargetRules: {
@@ -57,14 +67,24 @@ export default {
       type: Function,
       required: true,
     },
-    computeRules: {
+    getRuleName: {
       type: Function,
+      required: true,
+    },
+    removeDeletedItem: {
+      type: Function,
+      required: true,
+    },
+    errorHandling: {
+      type: String,
       required: true,
     },
   },
   components: {
     ChipButton,
     DeleteDialog,
+    SuccessMessage,
+    ErrorMessage,
   },
 
   data: () => ({
@@ -74,6 +94,10 @@ export default {
       rules: [],
     },
     spinner: false,
+    message: {
+      success: "",
+      error: "",
+    },
   }),
 
   created() {},
@@ -81,6 +105,7 @@ export default {
     closeDialog() {
       this.isDeleteDialog = false;
     },
+    // Display delete dialog/modal
     handleDeleteModal(targeting_type_id, items) {
       this.isDeleteDialog = true;
       let rules = [];
@@ -91,17 +116,23 @@ export default {
       }
       this.deleteItem = { targeting_type_id, rules };
     },
+    // Handles the delete action
     handleDeleteTarget() {
       this.spinner = true;
       const payload = this.deleteItem;
       deleteTargetingRules(payload)
         .then((response) => {
           if (response.status === 200) {
-            console.log(response, "success");
             this.isDeleteDialog = false;
+            this.removeDeletedItem(payload);
+            this.message.success = "Rule deleted successfully";
+          } else {
+            this.message.error = "An error has occurred";
           }
         })
-        .catch((error) => {})
+        .catch((error) => {
+          this.message.error = "An error has occurred";
+        })
         .finally(() => {
           this.spinner = false;
         });

@@ -2,13 +2,7 @@
   <div>
     <Header />
     <main class="content">
-      <div v-if="successText" class="success message-wrapper">
-        <div class="msg-content">{{ successText }}</div>
-      </div>
-      <div v-if="errorText" class="error message-wrapper">
-        <div class="msg-content">{{ errorText }}</div>
-      </div>
-      <AddTarget
+      <AddTargetRules
         v-bind="{
           form,
           availableOptions,
@@ -20,16 +14,26 @@
         }"
       />
       <SavedTargetRules
-        v-bind="{ savedTargetRules, findTargetType, computeRules }"
+        v-bind="{
+          savedTargetRules,
+          findTargetType,
+          getRuleName,
+          removeDeletedItem,
+          errorHandling,
+        }"
       />
+      <SuccessMessage v-bind="{ message }" />
+      <ErrorMessage v-bind="{ message }" />
     </main>
   </div>
 </template>
 
 <script>
 import Header from "@/components/Header.vue";
-import AddTarget from "@/components/AddTarget.vue";
+import AddTargetRules from "@/components/AddTargetRules.vue";
 import SavedTargetRules from "@/components/SavedTargetRules.vue";
+import SuccessMessage from "@/components/SuccessMessage.vue";
+import ErrorMessage from "@/components/ErrorMessage.vue";
 import {
   getTargetingTypes,
   getCategoryTypes,
@@ -42,8 +46,10 @@ export default {
   name: "Home",
   components: {
     Header,
-    AddTarget,
+    AddTargetRules,
     SavedTargetRules,
+    SuccessMessage,
+    ErrorMessage,
   },
   data: () => ({
     targetingTypes: [],
@@ -60,31 +66,18 @@ export default {
       targeting_type_id: [],
     },
     spinner: false,
-    successMessage: false,
-    successText: "",
-    errorMessage: false,
-    errorText: "",
+    message: {
+      success: "",
+      error: "",
+    },
+    errorHandling: "",
   }),
 
   mounted() {
+    // Fetching all data
     this.getAllData();
-    // this.getApi();
   },
   methods: {
-    getApi() {
-      fetch("https://private-anon-82e8a3143d-adcashdsp.apiary-mock.com/types", {
-        responseType: "text",
-        headers: {
-          Accept: "*/*",
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((response) => {})
-        .catch((err) => {
-          console.log(err);
-        });
-    },
     getAllData() {
       Promise.all([
         getTargetingTypes(),
@@ -102,18 +95,20 @@ export default {
             this.deviceTypes = eval(resp[3].data);
             this.currentRules = eval(resp[4].data);
           } else {
-            //  error handling for
+            //  error handling
+            this.errorHandling = "An error has occurred";
           }
         })
         .catch((error) => {
-          //  error handling for
-          console.log(error);
+          //  error handling
+          this.errorHandling = "An error has occurred";
         });
     },
     findTargetType(id) {
       return this.targetingTypes.find((type) => type.id === id).name;
     },
-    computeRules(ruleId) {
+    // Return rule name from ruleId
+    getRuleName(ruleId) {
       let allTypes = [
         ...this.categoryTypes,
         ...this.countryTypes,
@@ -125,8 +120,8 @@ export default {
       }
       return "";
     },
-    submitTargetingRule(event) {
-      event.preventDefault();
+    // Submit/Add New Targeting Rule
+    submitTargetingRule() {
       this.form_error = {
         rules: [],
         targeting_type_id: [],
@@ -142,59 +137,72 @@ export default {
         let payload = { targeting_type_id, rules: rulesSelected };
         addNewRules(payload)
           .then((response) => {
-            console.log(response);
-            this.successText = "Rule saved successfully";
-            let newRules = this.generateNewAddedRules(payload);
-            this.currentRules = [...this.currentRules, ...newRules];
-            this.handleResetForm();
+            if (response.status === 200) {
+              let newRules = this.generateNewAddedRules(payload);
+              this.currentRules = [...this.currentRules, ...newRules];
+              this.handleResetForm();
+              this.message.success = "Rule saved successfully";
+            } else {
+              this.message.error = "An error has occurred";
+            }
           })
           .catch((error) => {
-            this.errorText = "An error occurred while saving";
+            this.message.error = "An error occurred while saving";
           })
           .finally(() => {
             this.spinner = false;
           });
       }
     },
+    // Clear/Reset form
     handleResetForm() {
       this.form = { rules: [], targeting_type_id: "" };
     },
-    uniqueTargetingRule(arr1, arr2) {
+    // Exclude/Remove the selected rule
+    uniqueTargetingRule(arr1) {
       return arr1.reduce((acc, val) => {
-        const findItem = arr2.findIndex((el) => el.rule == val.id);
+        const findItem = this.currentRules.findIndex((el) => el.rule == val.id);
         if (findItem === -1) {
           acc.push(val);
         }
         return acc;
       }, []);
     },
+    // Generate new rule and update state
     generateNewAddedRules(payload) {
       const { targeting_type_id, rules } = payload;
       return rules.map((item) => {
         return { id: item, targeting_type_id, rule: item };
       });
     },
+    // Remove/Delete rule
+    removeDeletedItem(payload) {
+      const { targeting_type_id, rules } = payload;
+      this.currentRules = this.currentRules.filter(
+        (item) => rules.indexOf(item.rule) === -1
+      );
+    },
   },
   computed: {
+    // Available option base on selected target
     availableOptions() {
       const { targeting_type_id } = this.form;
-      const existingRules = this.savedTargetRules;
-      console.log(existingRules, "hey update");
       let rules;
       switch (targeting_type_id) {
         case 1:
           rules = this.categoryTypes;
-          return this.uniqueTargetingRule(rules, existingRules);
+          return this.uniqueTargetingRule(rules);
         case 2:
           rules = this.countryTypes;
-          return this.uniqueTargetingRule(rules, existingRules);
+          return this.uniqueTargetingRule(rules);
         case 3:
           rules = this.deviceTypes;
-          return this.uniqueTargetingRule(rules, existingRules);
+          return this.uniqueTargetingRule(rules);
         default:
           return [];
       }
     },
+    // Recomputing existing rules for proper loop in grid
     savedTargetRules() {
       const arr = this.currentRules;
       if (arr.length > 0) {
@@ -211,28 +219,6 @@ export default {
         }, []);
       }
       return [];
-    },
-  },
-  watch: {
-    errorText: {
-      handler: function (val) {
-        if (val) {
-          setTimeout(() => {
-            val = false;
-            this.errorText = "";
-          }, 4000);
-        }
-      },
-    },
-    successText: {
-      handler: function (val) {
-        if (val) {
-          setTimeout(() => {
-            val = false;
-            this.successText = "";
-          }, 4000);
-        }
-      },
     },
   },
 };

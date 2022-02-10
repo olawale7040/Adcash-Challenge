@@ -2,7 +2,7 @@
   <div class="dialog-container">
     <div class="dialog-wrap">
       <div class="dialog-header">
-        <div class="dialog-title">Delete</div>
+        <div class="dialog-title">Delete Rule</div>
         <div class="close-btn" @click="closeDialog">
           <img src="../assets/img/close.svg" alt="" />
         </div>
@@ -15,13 +15,18 @@
       </div>
       <div class="dialog-footer">
         <button
+          data-testId="go-back-button"
           class="btn grey-btn"
           @click="closeDialog"
           style="margin-right: 24px"
         >
           No, Go back
         </button>
-        <button @click="handleDeleteTarget" class="btn red-btn">
+        <button
+          @click="handleDeleteTarget"
+          class="btn red-btn"
+          data-testId="proceed-button"
+        >
           Yes, Proceed
           <img
             src="../assets/img/preloader.gif"

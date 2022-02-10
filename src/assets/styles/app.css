@@ -24,8 +24,10 @@ header {
   margin: 0 auto;
   flex-grow: 1;
 }
-.active-link {
-  color: #f1356d;
+.brand-name {
+  color: #0781f2;
+  font-weight: bold;
+  font-size: 20px;
 }
 .navbar .links {
   margin-left: auto;
@@ -34,9 +36,6 @@ header {
   margin-left: 16px;
   text-decoration: none;
   padding: 6px;
-}
-.navbar a:hover {
-  color: #f1356d;
 }
 .content {
   max-width: 800px;
