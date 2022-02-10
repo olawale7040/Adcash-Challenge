@@ -177,7 +177,7 @@ export default {
     },
     // Remove/Delete rule
     removeDeletedItem(payload) {
-      const { targeting_type_id, rules } = payload;
+      const { rules } = payload;
       this.currentRules = this.currentRules.filter(
         (item) => rules.indexOf(item.rule) === -1
       );
